@@ -1,44 +1,60 @@
 <html>
     <body>
-        <canvas
+        <div id="controls">
+            <span class="inputs">
+                Radius (in block)
+                <input id="radius" type="range" min="0" max="100" />
+            </span>
+            <span class="inputs">
+                Rays count <input id="rays" type="range" min="0" max="100" />
+            </span>
+            <div>
+                <span class="inputs">Input your center coordinates:</span>
+                <span class="inputs">X: <input type="number" name="center_x" id="center_x" value=0 style="width: 80%;" placeholder="X"></span>
+                <span class="inputs">Y: <input type="number" name="center_y" id="center_y" value=0 style="width: 80%;" placeholder="Z"></span>
+            </span>
+            <details>
+                <summary>Click Here for more options</summary>
+                <div id="advanced-controls">
+                    <span class="inputs">
+                        Min valid range <input id="min_valid_range" type="range" min="5" max="50" value="20"/>
+                    </span>
+                    <span class="inputs">
+                        Max valid range <input id="max_valid_range" type="range" min="10" max="50" value="25" />
+                    </span>
+                    <span class="inputs">
+                        Initial angle <input id="theta" type="range" min="0" max="6.29" /> (in radian)
+                    </span>
+                    <span class="inputs">
+                        Show grid<input type="checkbox" name="show_grid" id="show_grid" checked>
+                    </span>
+                    <span class="inputs">
+                        Show rays<input type="checkbox" name="show_rays" id="show_rays">
+                    </span>
+                    <span class="inputs">
+                        Show colliding rays<input type="checkbox" name="show_colliding_rays" id="show_colliding_rays">
+                    </span>
+                    <span class="inputs">
+                        Show valid range<input type="checkbox" name="show_valid_range" id="show_valid_range" checked>
+                    </span>
+                </details>
+            </div> 
+    </div>
+    <div id="results">
+        <div id="canvas-container">
+            <canvas
             style="height: 800px; width: 800px"
             id="canvas"
             width="800"
             height="800"
-        ></canvas>
-        <span>
-            Radius (in block)
-            <input id="radius" type="range" min="0" max="100" />
-        </span>
-        <span>
-            Rays count <input id="rays" type="range" min="0" max="100" />
-        </span>
-        <span>
-            Min valid range <input id="min_valid_range" type="range" min="5" max="50" />
-        </span>
-        <span>
-            Max valid range <input id="max_valid_range" type="range" min="10" max="50" />
-        </span>
-        <span>
-            Initial angle <input id="theta" type="range" min="0" max="6.29" /> (in radian)
-        </span>
-        <span>
-            Show grid<input type="checkbox" name="show_grid" id="show_grid" checked>
-        </span>
-        <span>
-            Show rays<input type="checkbox" name="show_rays" id="show_rays">
-        </span>
-        <span>
-            Show colliding rays<input type="checkbox" name="show_colliding_rays" id="show_colliding_rays">
-        </span>
-        <span>
-            Show valid range<input type="checkbox" name="show_valid_range" id="show_valid_range" checked>
-        </span>
-        <span>
-            Input your center X and Z coordinate<input type="number" name="center_x" id="center_x" value=0><input type="number" name="center_y" id="center_y" value=0>
-        </span>
-        <span id="list_of_beacons_title"></span>
-        <ul id="list_of_beacons"></ul>
+            ></canvas>
+        </div>
+        <div id="beacon-info">
+            <span id="list_of_beacons_title"></span>
+            <ul id="list_of_beacons"></ul>
+        </div>
+    </div>
         <script src="main.js"></script>
+        <link rel="stylesheet" href="main.css">
     </body>
 </html>

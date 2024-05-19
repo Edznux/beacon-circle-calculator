@@ -1,0 +1,26 @@
+#results {}
+#canvas-container {
+    float: left;
+}
+#beacon-info{
+    float: left;
+    width: 30%;
+    column-fill: balnce;
+    column-width: 150px;
+}
+
+#controls {
+    float: left;
+    width: 10%;
+}
+
+#advanced-controls {
+    float: left;
+}
+
+.inputs {
+    display: block;
+}
+.inputs input {
+    display: block;
+}
