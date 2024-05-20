@@ -213,7 +213,7 @@ function generateListOfBeacons(){
       var yCoordInBlockIndex = Math.floor(globalGrid.blocks[i].y/ globalConfig.BlockInPx)
       let li = document.createElement('li')
       
-      li.appendChild(document.createTextNode("x:"+ (globalConfig.WorldStartX+xCoordInBlockIndex) + " y:" + (globalConfig.WorldStartY+yCoordInBlockIndex)))
+      li.appendChild(document.createTextNode("x:"+ (globalConfig.WorldStartX+xCoordInBlockIndex) + " z:" + (globalConfig.WorldStartY+yCoordInBlockIndex)))
       listOfBeaconsElement.appendChild(li);
     }
   }
