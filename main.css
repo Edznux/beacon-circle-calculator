@@ -57,3 +57,8 @@ body {
     float:right;
     width: 40%;
 }
+footer {
+    padding: 10px;
+    clear: both;
+    position: relative;
+}
