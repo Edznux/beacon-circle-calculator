@@ -3,27 +3,27 @@
         <div id="controls">
             <span class="inputs">
                 Radius (in block)
-                <input id="radius" type="range" min="0" max="100" />
+                <input id="radius" type="range" min="0" max="100" value="25"/>
             </span>
             <span class="inputs">
-                Rays count <input id="rays" type="range" min="0" max="100" />
+                Rays count <input id="rays" type="range" min="0" max="100" value="21" />
             </span>
             <div>
                 <span class="inputs">Input your center coordinates:</span>
                 <span class="inputs">X: <input type="number" name="center_x" id="center_x" value=0 style="width: 80%;" placeholder="X"></span>
                 <span class="inputs">Y: <input type="number" name="center_y" id="center_y" value=0 style="width: 80%;" placeholder="Z"></span>
             </span>
-            <details>
-                <summary>Click Here for more options</summary>
+            <details id="details">
+                <summary>Click here for more options (advanced)</summary>
                 <div id="advanced-controls">
                     <span class="inputs">
-                        Min valid range <input id="min_valid_range" type="range" min="5" max="50" value="20"/>
+                        Min valid range <input id="min_valid_range" type="range" min="0" max="50" value="0"/>
                     </span>
                     <span class="inputs">
-                        Max valid range <input id="max_valid_range" type="range" min="10" max="50" value="25" />
+                        Max valid range <input id="max_valid_range" type="range" min="0" max="50" value="0"/>
                     </span>
                     <span class="inputs">
-                        Initial angle <input id="theta" type="range" min="0" max="6.29" /> (in radian)
+                        Initial angle <input id="theta" type="range" min="0.5" max="6.29" step="0.05"/> (in radian)
                     </span>
                     <span class="inputs">
                         Show grid<input type="checkbox" name="show_grid" id="show_grid" checked>
@@ -37,6 +37,31 @@
                     <span class="inputs">
                         Show valid range<input type="checkbox" name="show_valid_range" id="show_valid_range" checked>
                     </span>
+                    <div id="color-controls">
+                        <div id="color-control-title">
+                            Color Settings:
+                        </div>
+                        <div id="control-inputs">
+                            <label class="inputs">
+                                Grid:<input type="color" name="grid_color" id="grid_color" value="#B3D4BF">
+                            </label>
+                            <label class="inputs">
+                                Blocks:<input type="color" name="blocks_color" id="blocks_color" value="#3863A8">
+                            </label>
+                            <label class="inputs">
+                                Rays:<input type="color" name="rays_color" id="rays_color" value="#0E0E0E">
+                            </label>
+                            <label class="inputs">
+                                Block Intersecting Ray:<input type="color" name="block_colliding_color" id="block_colliding_color" value="#D8F4FD">
+                            </label>
+                            <label class="inputs">
+                                Inner Range:<input type="color" name="inner_range_color" id="inner_range_color" value="#48F44B">
+                            </label>
+                            <label class="inputs">
+                                Outter Range:<input type="color" name="outter_range_color" id="outter_range_color" value="#E77979">
+                            </label>
+                        </div>
+                    </div>
                 </details>
             </div> 
     </div>

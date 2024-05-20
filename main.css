@@ -1,4 +1,13 @@
+/* lol'd at that CSS */
+body {
+    line-height: 1.2;
+}
 #results {}
+
+#details {
+    margin-top: 10px;
+}
+
 #canvas-container {
     float: left;
 }
@@ -15,6 +24,7 @@
 }
 
 #advanced-controls {
+    margin: 5px;
     float: left;
 }
 
@@ -22,5 +32,28 @@
     display: block;
 }
 .inputs input {
+    /* display: block; */
+}
+
+#color-controls {
+    margin-top: 10px;
+    float: left;
+    width: 100%;
+    line-height: 1.4em;
+}
+#color-control-title {
+    font-size: 1.2em;
+}
+#control-inputs{
+    width: 100%;
+    float:left;
+}
+#control-inputs .inputs{
     display: block;
+    width: 100%;
+    float:left;
+}
+#control-inputs input{
+    float:right;
+    width: 40%;
 }

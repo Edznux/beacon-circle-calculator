@@ -1,10 +1,6 @@
 var WIDTH = 800;
 var HEIGHT = 800;
-var RADIUS_IN_BLOCK = 21;
-var RAYS = 11;
-var BLOCK_IN_PX = HEIGHT / RADIUS_IN_BLOCK;
-var INITIAL_THETA = 0.5;
-var radiusElement = document.getElementById("radius");
+var diameterElement = document.getElementById("radius");
 var raysElement = document.getElementById("rays");
 var thetaElement = document.getElementById("theta");
 var showGridElement = document.getElementById("show_grid");
@@ -17,6 +13,12 @@ var listOfBeaconsElement = document.getElementById("list_of_beacons");
 var listOfBeaconsTitleElement = document.getElementById("list_of_beacons_title");
 var worldCenterXElement = document.getElementById("center_x");
 var worldCenterYElement = document.getElementById("center_y");
+var gridColorElement = document.getElementById("grid_color");
+var blocksColorElement = document.getElementById("blocks_color");
+var raysColorElement = document.getElementById("rays_color");
+var blockCollindingColorElement = document.getElementById("block_colliding_color");
+var innerRangeColorElement = document.getElementById("inner_range_color");
+var outterRangeColorElement = document.getElementById("outter_range_color");
 var globalGrid;
 var globalConfig;
 // wait for the dom to be loaded
@@ -25,16 +27,16 @@ document.addEventListener("DOMContentLoaded", function (ev) {
 });
 function start() {
     globalConfig = {
-        BlockInPx: BLOCK_IN_PX,
+        BlockInPx: WIDTH / diameterElement.valueAsNumber,
         Height: HEIGHT,
-        InitialTheta: INITIAL_THETA,
+        InitialTheta: thetaElement.valueAsNumber,
         Width: WIDTH,
-        RadiusInBlock: radiusElement.valueAsNumber,
-        RaysCount: RAYS,
+        RadiusInBlock: diameterElement.valueAsNumber,
+        RaysCount: raysElement.valueAsNumber,
         ValidRangeInBlock: computeSaneValidRange(),
         // -radiusElement.valueAsNumber so we start at 0,0 for the center
-        WorldStartX: -radiusElement.valueAsNumber,
-        WorldStartY: -radiusElement.valueAsNumber,
+        WorldStartX: -diameterElement.valueAsNumber,
+        WorldStartY: -diameterElement.valueAsNumber,
     };
     var ctx = initCtx();
     if (ctx === undefined) {
@@ -47,20 +49,33 @@ function start() {
     // 75 ms enough for such a use case (this doesn't need 144fps...)
     // the full draw takes about 3ms on my computer, on max size radius, so technically could run at 333fps but no need to do that)
     window.setInterval(function () {
+        // regenerating the full grid is dumb but it removes the need to regen the grid at every point that changes something (color, size...)
+        globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+        generateListOfBeacons();
         draw(ctx);
     }, 75);
 }
+// This function uses the values from the HTML elements directly
+// Using arguments would make it "better" but more annoying to sync back the state.
 function computeSaneValidRange() {
+    // in case no valid range is set, default to 5 blocks valid range (ends on radius)
+    if (maxValidRangeElement.valueAsNumber === 0 && minValidRangeElement.valueAsNumber === 0) {
+        var per = (diameterElement.valueAsNumber / 2) / 100;
+        var start_range = diameterElement.valueAsNumber / 2 - (per * 20);
+        var end_range = diameterElement.valueAsNumber / 2;
+        return [start_range, end_range];
+    }
     if (maxValidRangeElement === null || maxValidRangeElement.valueAsNumber === 0) {
-        return [minValidRangeElement.valueAsNumber, maxValidRangeElement.valueAsNumber];
+        var max_range = diameterElement.valueAsNumber / 2;
+        return [minValidRangeElement.valueAsNumber, max_range];
     }
     // in case we invert the to, lets swap  
     if (maxValidRangeElement.valueAsNumber < minValidRangeElement.valueAsNumber) {
-        return [minValidRangeElement.valueAsNumber, minValidRangeElement.valueAsNumber + 1];
+        return [minValidRangeElement.valueAsNumber, maxValidRangeElement.valueAsNumber];
     }
     return [minValidRangeElement.valueAsNumber, maxValidRangeElement.valueAsNumber];
 }
-radiusElement === null || radiusElement === void 0 ? void 0 : radiusElement.addEventListener("change", function (ev) {
+diameterElement === null || diameterElement === void 0 ? void 0 : diameterElement.addEventListener("input", function (ev) {
     var el = ev.target;
     globalConfig.BlockInPx = WIDTH / el.valueAsNumber;
     // It doesn't really make sense on a grid to have a center of block in between 2 blocks, so we only allow odd numbers as radius
@@ -73,52 +88,50 @@ radiusElement === null || radiusElement === void 0 ? void 0 : radiusElement.addE
         globalConfig.RadiusInBlock = el.valueAsNumber;
     }
     globalConfig.ValidRangeInBlock = computeSaneValidRange();
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
 });
-worldCenterXElement === null || worldCenterXElement === void 0 ? void 0 : worldCenterXElement.addEventListener("change", function (ev) {
+worldCenterXElement === null || worldCenterXElement === void 0 ? void 0 : worldCenterXElement.addEventListener("input", function (ev) {
     var el = ev.target;
-    console.log(el.valueAsNumber);
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
     globalConfig.WorldStartX = el.valueAsNumber - globalConfig.RadiusInBlock;
-    generateListOfBeacons();
+    // generateListOfBeacons();
 });
-worldCenterYElement === null || worldCenterYElement === void 0 ? void 0 : worldCenterYElement.addEventListener("change", function (ev) {
-    console.log(globalConfig);
+worldCenterYElement === null || worldCenterYElement === void 0 ? void 0 : worldCenterYElement.addEventListener("input", function (ev) {
     var el = ev.target;
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
     globalConfig.WorldStartY = el.valueAsNumber - globalConfig.RadiusInBlock;
-    generateListOfBeacons();
+    // generateListOfBeacons();
 });
-minValidRangeElement === null || minValidRangeElement === void 0 ? void 0 : minValidRangeElement.addEventListener("change", function (ev) {
+minValidRangeElement === null || minValidRangeElement === void 0 ? void 0 : minValidRangeElement.addEventListener("input", function (ev) {
     var el = ev.target;
     globalConfig.ValidRangeInBlock[0] = el.valueAsNumber;
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
-    generateListOfBeacons();
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // generateListOfBeacons();
 });
-maxValidRangeElement === null || maxValidRangeElement === void 0 ? void 0 : maxValidRangeElement.addEventListener("change", function (ev) {
+maxValidRangeElement === null || maxValidRangeElement === void 0 ? void 0 : maxValidRangeElement.addEventListener("input", function (ev) {
     var el = ev.target;
     globalConfig.ValidRangeInBlock[1] = el.valueAsNumber;
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
-    generateListOfBeacons();
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // generateListOfBeacons();
 });
-raysElement === null || raysElement === void 0 ? void 0 : raysElement.addEventListener("change", function (ev) {
+raysElement === null || raysElement === void 0 ? void 0 : raysElement.addEventListener("input", function (ev) {
     var el = ev.target;
     globalConfig.RaysCount = el.valueAsNumber;
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
-    generateListOfBeacons();
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // generateListOfBeacons();
 });
-thetaElement === null || thetaElement === void 0 ? void 0 : thetaElement.addEventListener("change", function (ev) {
+thetaElement === null || thetaElement === void 0 ? void 0 : thetaElement.addEventListener("input", function (ev) {
     var el = ev.target;
     globalConfig.InitialTheta = el.valueAsNumber;
-    globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
-    generateListOfBeacons();
+    // globalGrid = generateGrid(globalConfig.RadiusInBlock, globalConfig.RaysCount);
+    // generateListOfBeacons();
 });
 function draw(ctx) {
     ctx.clearRect(0, 0, globalConfig.Width, globalConfig.Height);
     globalGrid.draw(ctx);
     if (showValidRangeElement === null || showValidRangeElement === void 0 ? void 0 : showValidRangeElement.checked) {
-        drawCircle(ctx, globalConfig.Width / 2, globalConfig.Height / 2, globalConfig.ValidRangeInBlock[0] * globalConfig.BlockInPx);
-        drawCircle(ctx, globalConfig.Width / 2, globalConfig.Height / 2, globalConfig.ValidRangeInBlock[1] * globalConfig.BlockInPx);
+        drawCircle(ctx, globalConfig.Width / 2, globalConfig.Height / 2, globalConfig.ValidRangeInBlock[0] * globalConfig.BlockInPx, innerRangeColorElement.value);
+        drawCircle(ctx, globalConfig.Width / 2, globalConfig.Height / 2, globalConfig.ValidRangeInBlock[1] * globalConfig.BlockInPx, outterRangeColorElement.value);
     }
     globalGrid.blocks[Math.floor(globalGrid.blocks.length / 2)].fillColor = "#000000";
 }
@@ -143,7 +156,6 @@ function generateListOfBeacons() {
             var xCoordInBlockIndex = Math.floor(globalGrid.blocks[i].x / globalConfig.BlockInPx);
             var yCoordInBlockIndex = Math.floor(globalGrid.blocks[i].y / globalConfig.BlockInPx);
             var li = document.createElement('li');
-            console.log(globalConfig.WorldStartX, globalConfig.WorldStartY, xCoordInBlockIndex, yCoordInBlockIndex, globalGrid.blocks[i]);
             li.appendChild(document.createTextNode("x:" + (globalConfig.WorldStartX + xCoordInBlockIndex) + " y:" + (globalConfig.WorldStartY + yCoordInBlockIndex)));
             listOfBeaconsElement.appendChild(li);
         }
@@ -169,7 +181,7 @@ function newRay(x, y, angle) {
 }
 function drawRay(ctx) {
     ctx.beginPath();
-    ctx.strokeStyle = "#55FF00";
+    ctx.strokeStyle = raysColorElement.value;
     ctx.moveTo(this.x, this.y);
     ctx.lineTo(this.x2, this.y2);
     ctx.stroke();
@@ -237,16 +249,21 @@ function generateBlock(x, y) {
     b.size = globalConfig.BlockInPx;
     b.draw = drawBlock;
     b.fillColor = "#FFFFFF";
-    b.strokeColor = "#FF5500";
+    b.strokeColor = gridColorElement.value;
     return b;
 }
 function drawGrid(ctx) {
     for (var b = 0; b < this.blocks.length; b++) {
-        if (showCollidingElement.checked && this.blocks[b].isColliding) {
-            this.blocks[b].fillColor = "#FFFF55";
+        if (this.blocks[b].isColliding) {
+            if (showCollidingElement.checked) {
+                this.blocks[b].fillColor = blockCollindingColorElement.value;
+            }
+            else {
+                this.blocks[b].fillColor = "#FFFFFF";
+            }
         }
         if (this.blocks[b].isClosestToRay) {
-            this.blocks[b].fillColor = "#FF55FF";
+            this.blocks[b].fillColor = blocksColorElement.value;
         }
         this.blocks[b].draw(ctx);
     }
@@ -257,15 +274,15 @@ function drawGrid(ctx) {
         }
     }
 }
-function drawCircle(ctx, x, y, r) {
+function drawCircle(ctx, x, y, r, color) {
     ctx.beginPath();
-    ctx.strokeStyle = "#00FF00";
+    ctx.strokeStyle = color;
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.closePath();
 }
-// ==== external function === 
+// ==== external function ===
 // https://crhallberg.com/CollisionDetection/Website/line-rect.html
 function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
     var uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) /
